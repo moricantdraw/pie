@@ -1,4 +1,4 @@
-// Take in sensor input and give motor commands for line following
+// Take in sensor input and output whether each sensor is on the line or not
 
 // Pin setup
 const int leftSensorPin = A0;  // Phototransistor output
