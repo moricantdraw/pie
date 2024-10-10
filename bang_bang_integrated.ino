@@ -1,4 +1,4 @@
-// Take in sensor input and output whether each sensor is on the line or not
+// Take in sensor input and command motors to follow a tape line on the floor
 
 //Include libraries
 #include <Wire.h>
@@ -6,13 +6,13 @@
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
 // Pin setup
-const int leftSensorPin = A0;  // Phototransistor output
-const int centerSensorPin = A1;
-const int rightSensorPin = A2;
+const int leftSensorPin = A1;  // Phototransistor output
+const int centerSensorPin = A2;
+const int rightSensorPin = A3;
 
 // Set thresholds
-const int leftThreshold = 800;
-const int centerThreshold = 800;
+const int leftThreshold = 790;
+const int centerThreshold = 875;
 const int rightThreshold = 260;
 
 // Initialize sensor on/off variable
@@ -20,7 +20,7 @@ boolean leftSensor;
 boolean centerSensor;
 boolean rightSensor;
 
-// Motor setup idk how to do this
+// Motor setup
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
 Adafruit_DCMotor *left = AFMS.getMotor(1);
@@ -32,8 +32,8 @@ void setup() {
   pinMode(rightSensorPin, INPUT);
 
   AFMS.begin(); //start motors and set initial speed
-  left->setSpeed(85);
-  right->setSpeed(75);
+  left->setSpeed(20);
+  right->setSpeed(20);
 
   Serial.begin(9600);          // Initialize serial communication for debugging
 }
@@ -42,7 +42,14 @@ void loop() {
   bool leftRead = readSensor(leftSensorPin, leftThreshold);
   bool rightRead = readSensor(rightSensorPin, rightThreshold);
 
+  Serial.print(leftRead);
+  Serial.print(" ");
+  Serial.println(rightRead);
+
   motorControl(leftRead, rightRead);
+
+  // left->run(FORWARD);
+  // right->run(FORWARD);
   
 }
 
@@ -64,58 +71,24 @@ bool readSensor(int sensorPin, int threshold){
 
 void motorControl(bool leftSense, bool rightSense){
   if (!leftSense && !rightSense){
-    left->setSpeed(85); //same!
-    right->setSpeed(75);
+    left->setSpeed(20); //same!
+    right->setSpeed(20);
   }
   else if (leftSense){
-    left->setSpeed(65);
-    right->setSpeed(75);
+    left->setSpeed(0);
+    right->setSpeed(40);
   }
   else if(rightSense){
-    left->setSpeed(75);
-    right->setSpeed(55);
+    left->setSpeed(40);
+    right->setSpeed(0);
   }
+  // else {
+  //   left->setSpeed(0);
+  //   right->setSpeed(0);
+  // }
 
+  left->run(BACKWARD);
+  right->run(BACKWARD);
 
 
 }
-
-// // Read the sensor value
-//   int leftSensorValue = analogRead(leftSensorPin);
-//   int centerSensorValue = analogRead(centerSensorPin);
-//   int rightSensorValue = analogRead(rightSensorPin);
-
-//   // Print sensor values for testing
-//   // Serial.print(leftSensorValue);
-//   // Serial.print(" ");
-//   // Serial.print(centerSensorValue);
-//   // Serial.print(" ");
-//   // Serial.println(rightSensorValue);
-
-//   if (leftSensorValue <= leftThreshold) {
-//     leftSensor = false;
-//   } else {
-//     leftSensor = true;
-//   }
-
-//   if (centerSensorValue <= centerThreshold) {
-//     centerSensor = false;
-//   } else {
-//     centerSensor = true;
-//   }
-  
-//   if (rightSensorValue <= rightThreshold) {
-//     rightSensor = false;
-//   } else {
-//     rightSensor = true;
-//   }
-
-//   // Print sensor boolean values for testing
-//   Serial.print(leftSensor);
-//   Serial.print(" ");
-//   Serial.print(centerSensor);
-//   Serial.print(" ");
-//   Serial.println(rightSensor);
-
-//   delay(100);  // Wait for 100 milliseconds before the next read
-
